@@ -2,14 +2,12 @@ module.exports = function check(str, bracketsConfig) {
     const stack = [];
     const bracketPairs = {};
     const openBrackets = new Set();
-    const closeBrackets = new Set();
     const sameBrackets = new Set();
 
     // Initialize the mappings from the configuration
     bracketsConfig.forEach(([open, close]) => {
-        bracketPairs[open] = close;
+        bracketPairs[close] = open; // Reverse the mapping for easy closing check
         openBrackets.add(open);
-        closeBrackets.add(close);
         if (open === close) {
             sameBrackets.add(open);
         }
@@ -25,10 +23,12 @@ module.exports = function check(str, bracketsConfig) {
             }
         } else if (openBrackets.has(char)) {
             stack.push(char); // Push opening bracket
-        } else if (closeBrackets.has(char)) {
-            if (stack.length === 0 || bracketPairs[stack.pop()] !== char) {
+        } else {
+            // It's a closing bracket
+            if (stack.length === 0 || stack[stack.length - 1] !== bracketPairs[char]) {
                 return false; // Mismatched closing bracket
             }
+            stack.pop(); // Pop the matching opening bracket
         }
     }
 
